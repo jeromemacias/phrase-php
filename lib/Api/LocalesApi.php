@@ -118,6 +118,7 @@ class LocalesApi
      *
      * List locales used in account
      *
+     * @param  string $id ID (required)
      * @param  string $x_phrase_app_otp Two-Factor-Authentication token (optional) (optional)
      * @param  int $page Page number (optional)
      * @param  int $per_page allows you to specify a page size up to 100 items, 25 by default (optional)
@@ -126,9 +127,9 @@ class LocalesApi
      * @throws \InvalidArgumentException
      * @return \Phrase\Model\LocalePreview1[]
      */
-    public function accountLocales($x_phrase_app_otp = null, $page = null, $per_page = null)
+    public function accountLocales($id, $x_phrase_app_otp = null, $page = null, $per_page = null)
     {
-        list($response) = $this->accountLocalesWithHttpInfo($x_phrase_app_otp, $page, $per_page);
+        list($response) = $this->accountLocalesWithHttpInfo($id, $x_phrase_app_otp, $page, $per_page);
         return $response;
     }
 
@@ -137,6 +138,7 @@ class LocalesApi
      *
      * List locales used in account
      *
+     * @param  string $id ID (required)
      * @param  string $x_phrase_app_otp Two-Factor-Authentication token (optional) (optional)
      * @param  int $page Page number (optional)
      * @param  int $per_page allows you to specify a page size up to 100 items, 25 by default (optional)
@@ -145,9 +147,9 @@ class LocalesApi
      * @throws \InvalidArgumentException
      * @return array of \Phrase\Model\LocalePreview1[], HTTP status code, HTTP response headers (array of strings)
      */
-    public function accountLocalesWithHttpInfo($x_phrase_app_otp = null, $page = null, $per_page = null)
+    public function accountLocalesWithHttpInfo($id, $x_phrase_app_otp = null, $page = null, $per_page = null)
     {
-        $request = $this->accountLocalesRequest($x_phrase_app_otp, $page, $per_page);
+        $request = $this->accountLocalesRequest($id, $x_phrase_app_otp, $page, $per_page);
 
         try {
             $options = $this->createHttpClientOption();
@@ -227,6 +229,7 @@ class LocalesApi
      *
      * List locales used in account
      *
+     * @param  string $id ID (required)
      * @param  string $x_phrase_app_otp Two-Factor-Authentication token (optional) (optional)
      * @param  int $page Page number (optional)
      * @param  int $per_page allows you to specify a page size up to 100 items, 25 by default (optional)
@@ -234,9 +237,9 @@ class LocalesApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function accountLocalesAsync($x_phrase_app_otp = null, $page = null, $per_page = null)
+    public function accountLocalesAsync($id, $x_phrase_app_otp = null, $page = null, $per_page = null)
     {
-        return $this->accountLocalesAsyncWithHttpInfo($x_phrase_app_otp, $page, $per_page)
+        return $this->accountLocalesAsyncWithHttpInfo($id, $x_phrase_app_otp, $page, $per_page)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -249,6 +252,7 @@ class LocalesApi
      *
      * List locales used in account
      *
+     * @param  string $id ID (required)
      * @param  string $x_phrase_app_otp Two-Factor-Authentication token (optional) (optional)
      * @param  int $page Page number (optional)
      * @param  int $per_page allows you to specify a page size up to 100 items, 25 by default (optional)
@@ -256,10 +260,10 @@ class LocalesApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function accountLocalesAsyncWithHttpInfo($x_phrase_app_otp = null, $page = null, $per_page = null)
+    public function accountLocalesAsyncWithHttpInfo($id, $x_phrase_app_otp = null, $page = null, $per_page = null)
     {
         $returnType = '\Phrase\Model\LocalePreview1[]';
-        $request = $this->accountLocalesRequest($x_phrase_app_otp, $page, $per_page);
+        $request = $this->accountLocalesRequest($id, $x_phrase_app_otp, $page, $per_page);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -298,6 +302,7 @@ class LocalesApi
     /**
      * Create request for operation 'accountLocales'
      *
+     * @param  string $id ID (required)
      * @param  string $x_phrase_app_otp Two-Factor-Authentication token (optional) (optional)
      * @param  int $page Page number (optional)
      * @param  int $per_page allows you to specify a page size up to 100 items, 25 by default (optional)
@@ -305,8 +310,14 @@ class LocalesApi
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function accountLocalesRequest($x_phrase_app_otp = null, $page = null, $per_page = null)
+    protected function accountLocalesRequest($id, $x_phrase_app_otp = null, $page = null, $per_page = null)
     {
+        // verify the required parameter 'id' is set
+        if ($id === null || (is_array($id) && count($id) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter $id when calling accountLocales'
+            );
+        }
 
         $resourcePath = '/accounts/{account_id}/locales';
         $formParams = [];
@@ -343,6 +354,14 @@ class LocalesApi
             $headerParams['X-PhraseApp-OTP'] = ObjectSerializer::toHeaderValue($x_phrase_app_otp);
         }
 
+        // path params
+        if ($id !== null) {
+            $resourcePath = str_replace(
+                '{' . 'id' . '}',
+                ObjectSerializer::toPathValue($id),
+                $resourcePath
+            );
+        }
 
         // body params
         $_tempBody = null;
@@ -1023,14 +1042,15 @@ class LocalesApi
      * @param  bool $include_unverified_translations if set to false unverified translations are excluded (optional)
      * @param  bool $use_last_reviewed_version If set to true the last reviewed version of a translation is used. This is only available if the review workflow (currently in beta) is enabled for the project. (optional)
      * @param  string $fallback_locale_id If a key has no translation in the locale being downloaded the translation in the fallback locale will be used. Provide the public ID of the locale that should be used as the fallback. Requires include_empty_translations to be set to &lt;code&gt;true&lt;/code&gt;. (optional)
+     * @param  string $source_locale_id Provides the source language of a corresponding job as the source language of the generated locale file. This parameter will be ignored unless used in combination with a &lt;code&gt;tag&lt;/code&gt; parameter indicating a specific job. (optional)
      *
      * @throws \Phrase\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \SplFileObject
      */
-    public function localeDownload($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null)
+    public function localeDownload($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null, $source_locale_id = null)
     {
-        list($response) = $this->localeDownloadWithHttpInfo($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id);
+        list($response) = $this->localeDownloadWithHttpInfo($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id, $source_locale_id);
         return $response;
     }
 
@@ -1057,14 +1077,15 @@ class LocalesApi
      * @param  bool $include_unverified_translations if set to false unverified translations are excluded (optional)
      * @param  bool $use_last_reviewed_version If set to true the last reviewed version of a translation is used. This is only available if the review workflow (currently in beta) is enabled for the project. (optional)
      * @param  string $fallback_locale_id If a key has no translation in the locale being downloaded the translation in the fallback locale will be used. Provide the public ID of the locale that should be used as the fallback. Requires include_empty_translations to be set to &lt;code&gt;true&lt;/code&gt;. (optional)
+     * @param  string $source_locale_id Provides the source language of a corresponding job as the source language of the generated locale file. This parameter will be ignored unless used in combination with a &lt;code&gt;tag&lt;/code&gt; parameter indicating a specific job. (optional)
      *
      * @throws \Phrase\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \SplFileObject, HTTP status code, HTTP response headers (array of strings)
      */
-    public function localeDownloadWithHttpInfo($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null)
+    public function localeDownloadWithHttpInfo($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null, $source_locale_id = null)
     {
-        $request = $this->localeDownloadRequest($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id);
+        $request = $this->localeDownloadRequest($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id, $source_locale_id);
 
         try {
             $options = $this->createHttpClientOption();
@@ -1162,13 +1183,14 @@ class LocalesApi
      * @param  bool $include_unverified_translations if set to false unverified translations are excluded (optional)
      * @param  bool $use_last_reviewed_version If set to true the last reviewed version of a translation is used. This is only available if the review workflow (currently in beta) is enabled for the project. (optional)
      * @param  string $fallback_locale_id If a key has no translation in the locale being downloaded the translation in the fallback locale will be used. Provide the public ID of the locale that should be used as the fallback. Requires include_empty_translations to be set to &lt;code&gt;true&lt;/code&gt;. (optional)
+     * @param  string $source_locale_id Provides the source language of a corresponding job as the source language of the generated locale file. This parameter will be ignored unless used in combination with a &lt;code&gt;tag&lt;/code&gt; parameter indicating a specific job. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function localeDownloadAsync($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null)
+    public function localeDownloadAsync($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null, $source_locale_id = null)
     {
-        return $this->localeDownloadAsyncWithHttpInfo($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id)
+        return $this->localeDownloadAsyncWithHttpInfo($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id, $source_locale_id)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1199,14 +1221,15 @@ class LocalesApi
      * @param  bool $include_unverified_translations if set to false unverified translations are excluded (optional)
      * @param  bool $use_last_reviewed_version If set to true the last reviewed version of a translation is used. This is only available if the review workflow (currently in beta) is enabled for the project. (optional)
      * @param  string $fallback_locale_id If a key has no translation in the locale being downloaded the translation in the fallback locale will be used. Provide the public ID of the locale that should be used as the fallback. Requires include_empty_translations to be set to &lt;code&gt;true&lt;/code&gt;. (optional)
+     * @param  string $source_locale_id Provides the source language of a corresponding job as the source language of the generated locale file. This parameter will be ignored unless used in combination with a &lt;code&gt;tag&lt;/code&gt; parameter indicating a specific job. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public function localeDownloadAsyncWithHttpInfo($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null)
+    public function localeDownloadAsyncWithHttpInfo($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null, $source_locale_id = null)
     {
         $returnType = '\SplFileObject';
-        $request = $this->localeDownloadRequest($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id);
+        $request = $this->localeDownloadRequest($project_id, $id, $x_phrase_app_otp, $branch, $file_format, $tags, $tag, $include_empty_translations, $exclude_empty_zero_forms, $include_translated_keys, $keep_notranslate_tags, $convert_emoji, $format_options, $encoding, $skip_unverified_translations, $include_unverified_translations, $use_last_reviewed_version, $fallback_locale_id, $source_locale_id);
 
         return $this->client
             ->sendAsync($request, $this->createHttpClientOption())
@@ -1263,11 +1286,12 @@ class LocalesApi
      * @param  bool $include_unverified_translations if set to false unverified translations are excluded (optional)
      * @param  bool $use_last_reviewed_version If set to true the last reviewed version of a translation is used. This is only available if the review workflow (currently in beta) is enabled for the project. (optional)
      * @param  string $fallback_locale_id If a key has no translation in the locale being downloaded the translation in the fallback locale will be used. Provide the public ID of the locale that should be used as the fallback. Requires include_empty_translations to be set to &lt;code&gt;true&lt;/code&gt;. (optional)
+     * @param  string $source_locale_id Provides the source language of a corresponding job as the source language of the generated locale file. This parameter will be ignored unless used in combination with a &lt;code&gt;tag&lt;/code&gt; parameter indicating a specific job. (optional)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
-    protected function localeDownloadRequest($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null)
+    protected function localeDownloadRequest($project_id, $id, $x_phrase_app_otp = null, $branch = null, $file_format = null, $tags = null, $tag = null, $include_empty_translations = null, $exclude_empty_zero_forms = null, $include_translated_keys = null, $keep_notranslate_tags = null, $convert_emoji = null, $format_options = null, $encoding = null, $skip_unverified_translations = null, $include_unverified_translations = null, $use_last_reviewed_version = null, $fallback_locale_id = null, $source_locale_id = null)
     {
         // verify the required parameter 'project_id' is set
         if ($project_id === null || (is_array($project_id) && count($project_id) === 0)) {
@@ -1452,6 +1476,17 @@ class LocalesApi
             }
             else {
                 $queryParams['fallback_locale_id'] = $fallback_locale_id;
+            }
+        }
+        // query params
+        if ($source_locale_id !== null) {
+            if('form' === 'form' && is_array($source_locale_id)) {
+                foreach($source_locale_id as $key => $value) {
+                    $queryParams[$key] = $value;
+                }
+            }
+            else {
+                $queryParams['source_locale_id'] = $source_locale_id;
             }
         }
 
@@ -2572,5 +2607,20 @@ class LocalesApi
         }
 
         return $options;
+    }
+    /**
+     * Append to form params, handle object params
+     */
+    protected function formParamsAppend(&$formParams, $name, $value)
+    {
+        if (is_object($value)) {
+            foreach ((array) $value as $k => $v) {
+                $formParams[$name.'['.$k.']'] = ObjectSerializer::toFormValue($v);
+            }
+
+            return;
+        }
+
+        $formParams[$name] = ObjectSerializer::toFormValue($value);
     }
 }
